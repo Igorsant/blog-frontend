@@ -44,8 +44,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-artifacts
-      - name: check dir
-        run: ls -la
+          path: dist
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
