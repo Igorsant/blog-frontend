@@ -1,26 +1,36 @@
 import { Box, TextField, Button, Container, Typography } from "@mui/material";
-import { useState } from "react";
 import { signUp } from "../../service";
 import { useNavigate } from "react-router-dom";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { schema } from "./schema";
+
+type Inputs = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
 
 export default function Sigup() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<Inputs>({
+    resolver: zodResolver(schema),
+  });
   const navigate = useNavigate();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (password == confirmPassword){
-      try {
-        signUp(email, password);
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    console.log(data);
+    signUp("user", data.email, data.password)
+      .then(() => {
         navigate("/");
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error(error);
-      }
-      return;
-    }
-    alert("Password and Confirm Password must be the same");
+        alert(error);
+      });
   };
 
   return (
@@ -29,42 +39,33 @@ export default function Sigup() {
         <Typography variant="h4" component="h1" sx={{ mb: 2 }} align="center">
           Sign Up
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
           <TextField
             margin="normal"
-            required
             fullWidth
-            id="email"
             label="Email Address"
-            name="email"
             autoComplete="email"
-            autoFocus
-            value={email || ""}
-            onChange={(e) => setEmail(e.target.value)}
+            error={errors.email ? true : false}
+            helperText={errors.email?.message}
+            {...register("email", { required: true })}
           />
           <TextField
             margin="normal"
-            required
             fullWidth
-            name="password"
             label="Password"
             type="password"
-            id="password"
-            autoComplete="current-password"
-            value={password || ""}
-            onChange={(e) => setPassword(e.target.value)}
+            error={errors.password ? true : false}
+            helperText={errors.password?.message}
+            {...register("password", { required: true })}
           />
           <TextField
             margin="normal"
-            required
             fullWidth
-            name="confirm-password"
             label="Confirm Password"
             type="password"
-            id="confirm-password"
-            autoComplete="current-password"
-            value={confirmPassword || ""}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            error={errors.confirmPassword ? true : false}
+            helperText={errors.confirmPassword?.message}
+            {...register("confirmPassword", { required: true })}
           />
           <Button
             type="submit"
