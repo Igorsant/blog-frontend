@@ -1,21 +1,34 @@
 import { Box, TextField, Button, Container, Typography } from "@mui/material";
-import { useState } from "react";
 import { login } from "../../service";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { useCookies } from "react-cookie";
+
+type Inputs = {
+  username: string;
+  password: string;
+};
 
 export default function Sigin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const setCookie = useCookies(["user"])[1];
+  const { handleSubmit, register } = useForm<Inputs>();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    try {
-      login(email, password);
-      navigate("/");
-    } catch (error) {
-      console.error(error);
-    }
+  const onSubmit = (data: Inputs) => {
+    login(data.username, data.password)
+      .then((res) => {
+        console.log(res.data.AuthenticationResult.AccessToken);
+        setCookie("user", { token: res.data.AuthenticationResult.AccessToken, username: data.username });
+        navigate("/");
+      })
+      .catch((error) => {
+        console.error(error);
+        if (error.response.data.name === "UserNotConfirmedException"){
+          navigate("/confirm");
+          return;
+        }
+        alert(error);
+      });
   };
 
   return (
@@ -24,30 +37,23 @@ export default function Sigin() {
         <Typography variant="h4" component="h1" sx={{ mb: 2 }} align="center">
           Login
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
             fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
+            label="Username"
             autoComplete="email"
-            autoFocus
-            value={email || ""}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register("username", { required: true })}
           />
           <TextField
             margin="normal"
             required
             fullWidth
-            name="password"
             label="Password"
             type="password"
-            id="password"
             autoComplete="current-password"
-            value={password || ""}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register("password", { required: true })}
           />
           <Button
             type="submit"

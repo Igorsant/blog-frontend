@@ -1,63 +1,33 @@
 import { Box, TextField, Button, Container, Typography } from "@mui/material";
-import { signUp } from "../../service";
-import { useNavigate } from "react-router-dom";
+// import { useSearchParams } from "react-router-dom";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { schema } from "./schema";
 
 type Inputs = {
-  username: string;
-  email: string;
   password: string;
   confirmPassword: string;
 };
 
-export default function Sigup() {
-  const {
-    handleSubmit,
-    register,
-    formState: { errors },
-  } = useForm<Inputs>({
+export const ResetPassword = () => {
+  // const [searchParams, _setSearchParams] = useSearchParams();
+  // const { username, confirmationCode } = JSON.parse(atob(searchParams.get("code") || ""));
+
+  const { handleSubmit, register, formState: { errors } } = useForm<Inputs>({
     resolver: zodResolver(schema),
   });
-  const navigate = useNavigate();
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     console.log(data);
-    signUp(data.username, data.email, data.password)
-      .then(() => {
-        navigate("/confirm?username=" + data.username);
-      })
-      .catch((error) => {
-        console.error(error);
-        alert(error);
-      });
   };
 
   return (
     <Container maxWidth="sm">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" sx={{ mb: 2 }} align="center">
-          Sign Up
+          Reset Password
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Username"
-            error={errors.username ? true : false}
-            helperText={errors.username?.message}
-            {...register("username", { required: true })}
-          />
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Email Address"
-            autoComplete="email"
-            error={errors.email ? true : false}
-            helperText={errors.email?.message}
-            {...register("email", { required: true })}
-          />
           <TextField
             margin="normal"
             fullWidth
@@ -82,7 +52,7 @@ export default function Sigup() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Sign Up
+            Send
           </Button>
         </Box>
       </Box>

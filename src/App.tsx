@@ -4,6 +4,12 @@ import Home from "./pages/home";
 import Signup from "./pages/signup";
 import { CssBaseline, GlobalStyles } from "@mui/material";
 import ProtectRoute from "./components/protectRoute";
+import { ResetPassword } from "./pages/resetPassword";
+import { ForgotPassword } from "./pages/forgotPassword";
+import { ConfirmCode } from "./pages/confirmCode";
+import { useCookies } from "react-cookie";
+import { useEffect } from "react";
+import PrivateRoute from "./components/privateRoute";
 
 const globalStyles = {
   "*": {
@@ -17,35 +23,27 @@ const globalStyles = {
 };
 
 export default function App() {
+  const cookies = useCookies(["user"])[0];
+
+  useEffect(() => {
+    console.log(cookies);
+  });
   return (
     <>
       <CssBaseline />
       <GlobalStyles styles={globalStyles} />
       <Routes>
-        <Route
-          path="/"
-          element={
-            <ProtectRoute>
-              <Home />
-            </ProtectRoute>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <ProtectRoute>
-              <Sigin />
-            </ProtectRoute>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <ProtectRoute>
-              <Signup />
-            </ProtectRoute>
-          }
-        />
+        <Route element={<PrivateRoute />}>
+        <Route path="/" element={<Home />} />
+        </Route>
+
+        <Route element={<ProtectRoute />}>
+          <Route path="/login" element={<Sigin />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/confirm" element={<ConfirmCode />} />
+          <Route path="/forgot" element={<ForgotPassword />} />
+          <Route path="/reset" element={<ResetPassword />} />
+        </Route>
       </Routes>
     </>
   );
